@@ -1,0 +1,230 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Simulate_BIR_Rabi1</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-12-04"><meta name="DC.source" content="Simulate_BIR_Rabi1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">define simulation limits</a></li><li><a href="#3">make AFP pulse</a></li><li><a href="#4">Loop over BIR phases</a></li><li><a href="#5">plot</a></li></ul></div><pre class="codeinput">clear
+clc
+</pre><h2>define simulation limits<a name="2"></a></h2><pre class="codeinput">Sys.M0=[0, 0, 1];
+Exp.MaxDetuning=80e6;
+Exp.npts=601;
+spini=round(Exp.npts/2);
+</pre><h2>make AFP pulse<a name="3"></a></h2><pre class="codeinput"><span class="comment">%define adiabatic pulse</span>
+pulse.name=<span class="string">'HSn'</span>;
+pulse.method=<span class="string">'Fixed_opBW'</span>;
+pulse.regime=<span class="string">'Adiabatic'</span>;
+pulse.theta=pi;
+pulse.opBW=50e6;
+pulse.R=20; <span class="comment">% bandwidth tuning parameter</span>
+pulse= Create_Optimized_Pulse(pulse);
+
+[Sys, Exp, Mx1, My1, Mz1 ] = EvolveM_Fast(pulse, Sys, Exp);
+</pre><h2>Loop over BIR phases<a name="4"></a></h2><pre class="codeinput">thetas=[0:0.2:3].*pi; <span class="comment">%BIR phase jumps</span>
+
+cc=hsv(length(thetas));
+h=waitbar(0, <span class="string">'thinking'</span>);
+<span class="keyword">for</span> jj=1:length(thetas)
+    <span class="comment">%create BIR pulse with incremented phase jump</span>
+    p=pulse;
+    p.BIRphase=thetas(jj);
+    [BIR] = Concatenate_BIR4(p);
+
+    <span class="comment">%simulate BIR pulse</span>
+    [Sys, Exp, Mx, My, Mz ] = EvolveM_Fast(BIR, Sys, Exp);
+
+    <span class="comment">%store end-of-pulse Mz</span>
+    Mztot(:,jj)=Mz;   <span class="comment">% vs Detuning</span>
+    MZ(jj)=Mz(spini); <span class="comment">% on resonance</span>
+    int(jj)=sum(Mz)/Exp.npts; <span class="comment">%averaged over detuning</span>
+
+    waitbar(jj/length(thetas))
+<span class="keyword">end</span>
+close(h)
+</pre><h2>plot<a name="5"></a></h2><pre class="codeinput">figure(<span class="string">'color'</span>, <span class="string">'white'</span>, <span class="string">'units'</span>, <span class="string">'norm'</span>, <span class="string">'pos'</span>, [.1, .1, .6, .6])
+
+subplot(2,3,1)
+plot(BIR.t/1e-9, BIR.env/1e-4)
+xlabel(<span class="string">'t (ns)'</span>)
+ylabel(<span class="string">'B_1(t)(Gauss)'</span>)
+
+subplot(2,3,2)
+plot(BIR.t/1e-9, BIR.f_mod/1e6)
+xlabel(<span class="string">'t (ns)'</span>)
+ylabel(<span class="string">'f_{mod} (MHz)'</span>)
+
+subplot(2,3,3)
+plot(BIR.t/1e-9, BIR.phi/pi)
+xlabel(<span class="string">'t (ns)'</span>)
+ylabel(<span class="string">'\phi(t)'</span>)
+
+
+subplot(2,3,4)
+plot(Exp.detuning/1e6, Mz1)
+xlabel(<span class="string">'Detuning (MHz)'</span>)
+ylabel(<span class="string">'M_z (AFP)'</span>)
+
+subplot(2,3,5)
+plot(Exp.detuning/1e6, Mztot)
+xlabel(<span class="string">'Detuning (MHz)'</span>)
+ylabel(<span class="string">'BIR M_z'</span>)
+
+subplot(2,3,6)
+plot(thetas/pi, MZ, <span class="string">'k'</span>)
+ylabel(<span class="string">'Mz(\Omega=0)'</span>)
+hold <span class="string">on</span>
+plot(thetas/pi, int, <span class="string">'r'</span>)
+ylabel(<span class="string">'Mz(\int \Omega)'</span>)
+legend(<span class="string">'\theta (\Omega=0)'</span>,<span class="string">'\theta (\int\Omega)'</span>)
+xlabel(<span class="string">'\theta (\pi)'</span>)
+</pre><img vspace="5" hspace="5" src="Simulate_BIR_Rabi1_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear
+clc
+
+%% define simulation limits
+Sys.M0=[0, 0, 1];
+Exp.MaxDetuning=80e6;
+Exp.npts=601;
+spini=round(Exp.npts/2);
+
+%% make AFP pulse 
+%define adiabatic pulse
+pulse.name='HSn';
+pulse.method='Fixed_opBW';
+pulse.regime='Adiabatic';
+pulse.theta=pi;
+pulse.opBW=50e6;
+pulse.R=20; % bandwidth tuning parameter
+pulse= Create_Optimized_Pulse(pulse);
+
+[Sys, Exp, Mx1, My1, Mz1 ] = EvolveM_Fast(pulse, Sys, Exp);
+
+%% Loop over BIR phases
+thetas=[0:0.2:3].*pi; %BIR phase jumps 
+
+cc=hsv(length(thetas));
+h=waitbar(0, 'thinking');
+for jj=1:length(thetas)
+    %create BIR pulse with incremented phase jump
+    p=pulse;
+    p.BIRphase=thetas(jj);
+    [BIR] = Concatenate_BIR4(p);
+    
+    %simulate BIR pulse
+    [Sys, Exp, Mx, My, Mz ] = EvolveM_Fast(BIR, Sys, Exp);  
+
+    %store end-of-pulse Mz
+    Mztot(:,jj)=Mz;   % vs Detuning
+    MZ(jj)=Mz(spini); % on resonance
+    int(jj)=sum(Mz)/Exp.npts; %averaged over detuning   
+   
+    waitbar(jj/length(thetas))
+end
+close(h)
+
+%% plot
+figure('color', 'white', 'units', 'norm', 'pos', [.1, .1, .6, .6])
+
+subplot(2,3,1)
+plot(BIR.t/1e-9, BIR.env/1e-4)
+xlabel('t (ns)')
+ylabel('B_1(t)(Gauss)')
+
+subplot(2,3,2)
+plot(BIR.t/1e-9, BIR.f_mod/1e6)
+xlabel('t (ns)')
+ylabel('f_{mod} (MHz)')
+
+subplot(2,3,3)
+plot(BIR.t/1e-9, BIR.phi/pi)
+xlabel('t (ns)')
+ylabel('\phi(t)')
+
+
+subplot(2,3,4)
+plot(Exp.detuning/1e6, Mz1)
+xlabel('Detuning (MHz)')
+ylabel('M_z (AFP)')
+
+subplot(2,3,5)
+plot(Exp.detuning/1e6, Mztot)
+xlabel('Detuning (MHz)')
+ylabel('BIR M_z')
+
+subplot(2,3,6)
+plot(thetas/pi, MZ, 'k')
+ylabel('Mz(\Omega=0)')
+hold on
+plot(thetas/pi, int, 'r')
+ylabel('Mz(\int \Omega)')
+legend('\theta (\Omega=0)','\theta (\int\Omega)')
+xlabel('\theta (\pi)')
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>

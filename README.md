@@ -1,5 +1,5 @@
 # ShapedPulseSimulator 
-ShapedPulseSimulator is a research tool for designing and simulating microwave pulses and pulse sequences for pulsed Electron Paramagnetic Resonance (EPR) Spectroscopy. It provides functions for designing and optimixing the Ampliture and Frequence modulation of microwave pulses, or pulse sequences, with examples provided for common pulse sequences such as the Hahn echo and T1 inversion experiements. 
+ShapedPulseSimulator is a research tool for designing and simulating microwave pulses and pulse sequences for pulsed Electron Paramagnetic Resonance (EPR) Spectroscopy. It provides functions for designing and optimixing the Amplitude and Frequence modulation of microwave pulses, or pulse sequences, with examples provided for common pulse sequences such as the Hahn echo and T1 inversion experiements. 
 
 Unlike many other such tools which ask the question "given this pulse sequence, simulate he quantum ensembe sin evolution", this package inverts the question
 "given these experimental parameters, design a pulse/pulses to perform this quantum operation"
